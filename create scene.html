@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>  <html class="ie ie6 lte9 lte8 lte7"> <![endif]-->
+<!--[if IE 7]>     <html class="ie ie7 lte9 lte8 lte7"> <![endif]-->
+<!--[if IE 8]>     <html class="ie ie8 lte9 lte8">		<![endif]-->
+<!--[if IE 9]>     <html class="ie ie9 lte9">			<![endif]-->
+<!--[if gt IE 9]>  <html>								<![endif]-->
+<!--[if !IE]><!--> <html>								<!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+	<title>Threejs</title>
+
+	<style type="text/css">
+		* {margin:0;padding:0;}
+		body {overflow: hidden;}
+
+		#root {position: absolute;width:75%;height:75%;top:0;right:0;bottom:0;left:0;margin:auto;}
+	</style>
+
+	<script src="https://unpkg.com/three@0.98.0/build/three.js" crossorigin></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.js" crossorigin></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.3/dat.gui.js" crossorigin></script>
+	<script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js" crossorigin></script>
+</head>
+
+<body>
+
+<div id="root"></div>
+<script type="text/javascript">
+$(function(){
+	var controls={
+		rotationSpeed:.01,
+		bouncingSpeed:.01
+	}
+	var gui=new dat.GUI();
+	gui.add(controls,'rotationSpeed',0,.05);
+	gui.add(controls,'bouncingSpeed',0,.05);
+	//---------------------------------------------------------------dat GUI added
+
+	var scene=new THREE.Scene();
+	var camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,.1,1000);
+	var renderer=new THREE.WebGLRenderer();
+	var axes=new THREE.AxesHelper(20);
+
+	scene.add(axes);
+
+	camera.position.set(-6,4,10);
+	camera.lookAt(scene.position);
+
+	renderer.setClearColor(0xEEEEEE);
+	renderer.setSize(window.innerWidth/1.33,window.innerHeight/1.33);
+	renderer.shadowMap.enabled=true;
+	//---------------------------------------------------------------initialize
+
+	var planeGeometry=new THREE.PlaneGeometry(10,10);
+	var planeMeterial=new THREE.MeshLambertMaterial({
+		color:0xCCCCCC
+	});
+	var plane=new THREE.Mesh(planeGeometry,planeMeterial);
+
+	plane.position.set(0,0,-6);
+	plane.receiveShadow=true;
+
+	scene.add(plane);
+
+
+	var cubeGeometry=new THREE.CubeGeometry(4,4,4);
+	var cubeMeterial=new THREE.MeshLambertMaterial({
+		color:0xFFCCCC
+	});
+	var cube=new THREE.Mesh(cubeGeometry,cubeMeterial);
+
+	cube.position.set(0,0,-4);
+	cube.castShadow=true;
+
+	scene.add(cube);
+
+
+	var spotLight=new THREE.SpotLight(0xFFFFFF);
+	spotLight.position.set(10,0,0);
+	spotLight.castShadow=true;
+	scene.add(spotLight);
+
+	//---------------------------------------------------------------to be render
+	function initStats(){
+		var stats=new Stats();
+		stats.setMode(0);
+		document.getElementById('root').appendChild(stats.domElement);
+		return stats;
+	}
+	var stats=initStats();
+	var cubeStep=0;
+	function render(){
+		cube.rotation.x+=controls.rotationSpeed;
+		cube.rotation.z+=controls.rotationSpeed;
+		cubeStep+=controls.bouncingSpeed;
+		cube.position.x=0+( 1*( Math.cos(cubeStep) ) );
+		cube.position.y=1+( 1*( Math.abs( Math.sin(cubeStep) ) ) );
+		//---------------------------always excute
+		stats.update();
+		requestAnimationFrame(render);
+		renderer.render(scene,camera);
+	}
+	render();
+	
+	document.getElementById('root').appendChild(renderer.domElement);
+
+})
+
+$(function(){
+	// document.getElementById('root').appendChild(renderer.domElement);
+})
+</script>
+</body>
+</html>
